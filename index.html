@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://use.typekit.net/lxl2pkq.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Narrow:wght@700&family=Bebas+Neue&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="pp.css?v=18">
+<link rel="stylesheet" href="pp.css?v=21">
 <style>
   :root { --navy:#0d1f2d; --navy2:#13293b; --navy3:#1b3850; --line:#24425c; --gold:#fbcc7a; --ink:#eef3f8; --dim:#9fb2c4; --red:#ff5a5f; --green:#3ddc84; }
   * { box-sizing:border-box; }
@@ -343,8 +343,8 @@
   </div>
 </dialog>
 
-<script src="pp.js?v=18"></script>
-<script src="mlbdata.js?v=18"></script>
+<script src="pp.js?v=21"></script>
+<script src="mlbdata.js?v=21"></script>
 <script>
 (() => {
   const $ = id => document.getElementById(id);
@@ -1078,6 +1078,8 @@
     else if (ptNum.length) { w.style.color = 'var(--red)'; w.innerHTML = 'Scores are set to <b>PRIMETIME</b> like the show. That needs the full (paid) PRIMETIME — the free version draws every digit as the Hypefonts "HF" logo. If you see HF badges, pick another score font.'; w.style.color = 'var(--gold)'; }
     else { w.style.color = ''; w.innerHTML = 'PRIMETIME adds ten drop shadows wherever it\'s used. PRIMETIME and Designer load from fonts installed on this computer and the OBS computer — they aren\'t bundled.'; }
   }
+  // one-time: Rig Solid Bold Fill becomes the points font (asked for 2026-11-20), keeping every other saved choice
+  if (!LS.get('fontsRig', false)) { G.fonts.score = 'rig-bold-fill'; LS.set('fonts', G.fonts); LS.set('fontsRig', true); }
   renderFontsEd();
   ['NPP Primetime', 'NPP Designer'].forEach(f => document.fonts && document.fonts.load(`40px "${f}"`).then(checkFonts, checkFonts));
   checkFonts();
