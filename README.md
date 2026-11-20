@@ -36,5 +36,7 @@ The PSD uses **PRIMETIME** (name, with ten drop shadows) and **Designer** (numbe
 (licensing) — install them on the control and OBS computers. Until then the card falls back to Archivo Black /
 Russo One. Every text element can be switched to any of the 139 fonts under **Fonts**.
 
-Keys: `Space` reveal rank (star wipe) · `C` card · `S` scoreboard · `X` strikes · `T` turn arrow · `B` board ·
+**Rank reveal:** the star sits on the card blank; Space (or ★ Reveal rank) pulls the blank sticker up off it to show the rank, centred in the star.
+
+Keys: `Space` reveal rank · `C` card · `S` scoreboard · `X` strikes · `T` turn arrow · `B` board ·
 `←/→` picker · `U` undo.

@@ -584,8 +584,9 @@ window.PP = (() => {
           ${c.pinpoint ? `<div class="jc-pin rv"><span>Best possible answer</span>PINPOINT!</div>` : ''}
         </div>
         <div class="jc-statrow"><div class="jc-statbox"><b class="jc-val" data-fit="${miss && !hasVal ? 40 : 56}" data-min="24">${esc(statBig)}</b></div><div class="jc-lbl">${esc(statLbl)}</div></div>
-        <div class="jc-rank${rankHidden ? ' hide' : ''}"><img class="jc-star" src="img/star.png" alt="">
-          <div class="jc-rtext"><b data-fit="54" data-min="26" data-w="150">${esc(rankBig)}</b><i>${esc(rankSub).split(/\s+/).join('<br>')}</i></div></div>
+        <div class="jc-rank"><img class="jc-star" src="img/star.png" alt="">
+          <div class="jc-rtext"><b data-fit="50" data-min="24" data-w="112">${esc(rankBig)}</b><i>${esc(rankSub).split(/\s+/).join('<br>')}</i></div>
+          ${rankHidden ? `<div class="jc-cover"><img src="img/star.png" alt=""></div>` : ''}</div>
         ${c.who ? `<div class="jc-who">${esc(c.who)}${miss ? ' <b>STRIKE</b>' : ` <b class="rv">+${esc(c.pts)}</b>`}</div>` : ''}
         ${c.rare && !c.pinpoint ? `<div class="jc-rare rv">Rare find!</div>` : ''}`;
       fitText(el.card);
@@ -599,12 +600,17 @@ window.PP = (() => {
       if (want === rankState) return;
       rankState = want;
       const r = el.card.querySelector('.jc-rank'); if (!r) return;
+      let cov = r.querySelector('.jc-cover');
       if (want === 'shown') {
         el.card.classList.remove('rank-hidden');
-        r.classList.remove('hide'); r.classList.remove('wipe'); void r.offsetWidth; r.classList.add('wipe');
+        if (cov) { cov.classList.remove('peel'); void cov.offsetWidth; cov.classList.add('peel'); }
         el.card.classList.add('revealed');
         sfx('reveal');
-      } else { r.classList.add('hide'); r.classList.remove('wipe'); el.card.classList.add('rank-hidden'); el.card.classList.remove('revealed'); }
+      } else {
+        if (!cov) { r.insertAdjacentHTML('beforeend', '<div class="jc-cover"><img src="img/star.png" alt=""></div>'); }
+        else cov.classList.remove('peel');
+        el.card.classList.add('rank-hidden'); el.card.classList.remove('revealed');
+      }
     }
     // warm a whole list of photos (display does this as soon as a list is chosen)
     async function preloadAll(items) {

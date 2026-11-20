@@ -36,9 +36,9 @@
   transform:translate(var(--lbl-x,0px),var(--lbl-y,0px)) scale(var(--lbl-s,1)); transform-origin:0 70%; }
 .jc-rank { position:absolute; left:427px; top:553px; width:183px; height:239px; z-index:4; transform:translate(var(--rank-x,0px),var(--rank-y,0px)) scale(var(--rank-s,1)); transform-origin:50% 50%; }
 .jc-star { position:absolute; inset:0; width:100%; height:100%; }
-.jc-rtext { position:absolute; left:28px; top:62px; width:150px; text-align:center; transform:rotate(11.2deg); }
+.jc-rtext { position:absolute; left:106.5px; top:123px; width:112px; text-align:center; transform:translate(-50%,-50%) rotate(11.2deg); }  /* centred in the star (its visual centre in star.png) */
 .jc-rank b { display:inline-block; white-space:nowrap; font-weight:400; font-size:54px; line-height:1; color:#FF5252; letter-spacing:-.04em; text-shadow:4.2px 4.2px 0 #000; }
-.jc-rank i { display:block; font-style:normal; font-size:17px; line-height:15px; letter-spacing:-.04em; text-transform:uppercase; color:#000; margin-top:4px; }
+.jc-rank i { display:block; font-style:normal; font-size:14px; line-height:13px; letter-spacing:-.04em; text-transform:uppercase; color:#000; margin-top:4px; }
 .jc-who { position:absolute; right:-16px; top:-22px; z-index:5; background:var(--pc); border:4px solid #0a0a0a; border-radius:12px; padding:8px 14px 3px;
   font-size:32px; line-height:1; color:#fff; text-shadow:2px 0px 0 #0a0a0a, -2px 0px 0 #0a0a0a, 0px 2px 0 #0a0a0a, 0px -2px 0 #0a0a0a, 2px 2px 0 #0a0a0a, -2px -2px 0 #0a0a0a, 2px -2px 0 #0a0a0a, -2px 2px 0 #0a0a0a; transform:translate(var(--who-x,0px),var(--who-y,0px)) rotate(5deg) scale(var(--who-s,1)); transform-origin:100% 0;
   box-shadow:5px 5px 0 rgba(0,0,0,.35); white-space:nowrap; text-transform:uppercase; }
@@ -157,3 +157,24 @@ html.no-anim .pp-stage *, html.no-anim .pp-stage *::before, html.no-anim .pp-sta
 .pp-stage[data-fx-boardhead] .pp-bhead b { text-shadow:2px 2px 0 #000, 3px 3px 0 #000, 4px 4px 0 #000, 5px 5px 0 #000, 6px 6px 0 #000, 7px 7px 0 #000, 8px 8px 0 #000, 9px 9px 0 #000, 10px 10px 0 #000, 11px 11px 0 #000; }
 .pp-card.revealed .jc-rare { animation:jcFade .45s ease-out .4s both; }
 @keyframes jcFade { from { opacity:0; } to { opacity:1; } }
+
+/* rank reveal: the star sits there blank (a blank star sticker on top) and the sticker pulls up off it */
+.jc-cover { position:absolute; inset:0; z-index:2; transform-origin:50% 8%; filter:drop-shadow(2px 3px 0 rgba(0,0,0,.25)); }
+.jc-cover img { position:absolute; inset:0; width:100%; height:100%; }
+.jc-cover .jc-q { position:absolute; left:106.5px; top:123px; transform:translate(-50%,-50%) rotate(11.2deg); font-size:64px; line-height:1; color:#fff; opacity:.9;
+  text-shadow:2px 2px 0 #0a0a0a, -2px -2px 0 #0a0a0a, 2px -2px 0 #0a0a0a, -2px 2px 0 #0a0a0a, 4px 4px 0 #0a0a0a; font-family:var(--ff-rank); }
+/* a highlight band that sweeps as the sticker curls */
+.jc-cover::after { content:''; position:absolute; inset:0; -webkit-mask:url(img/star.png) center/100% 100% no-repeat; mask:url(img/star.png) center/100% 100% no-repeat;
+  background:linear-gradient(180deg, rgba(255,255,255,0) 40%, rgba(255,255,255,.55) 60%, rgba(0,0,0,.25) 75%, rgba(255,255,255,0) 90%); opacity:0; }
+.jc-cover.peel { animation:jcPeel .85s cubic-bezier(.5,0,.3,1) both; pointer-events:none; }
+.jc-cover.peel::after { animation:jcPeelShine .85s ease-out both; }
+@keyframes jcPeel {
+  0%   { transform:perspective(700px) rotateX(0) rotate(0) translateY(0); filter:drop-shadow(2px 3px 0 rgba(0,0,0,.25)); opacity:1; }
+  25%  { transform:perspective(700px) rotateX(-28deg) rotate(-3deg) translateY(-6px) scale(1.03); filter:drop-shadow(6px 16px 8px rgba(0,0,0,.35)); opacity:1; }
+  60%  { transform:perspective(700px) rotateX(-62deg) rotate(-10deg) translateY(-60px) scale(1.06); filter:drop-shadow(10px 28px 14px rgba(0,0,0,.3)); opacity:1; }
+  100% { transform:perspective(700px) rotateX(-85deg) rotate(-22deg) translateY(-220px) scale(1.08); filter:drop-shadow(10px 40px 20px rgba(0,0,0,0)); opacity:0; }
+}
+@keyframes jcPeelShine { 0% { opacity:0; transform:translateY(40%); } 30% { opacity:1; } 100% { opacity:0; transform:translateY(-40%); } }
+/* the old star-wipe isn't used on this card */
+.mc .jc-rank.wipe, .mc .jc-rank.hide { animation:none; clip-path:none; }
+html.no-anim .jc-cover.peel { display:none; }
