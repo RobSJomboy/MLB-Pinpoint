@@ -323,7 +323,8 @@ window.PP = (() => {
     "g-archivo-700": ["Archivo Bold", "'Archivo',sans-serif", 700, 'normal', "Clean", "Archivo:wght@700"],
     primetime:   ['PRIMETIME + ten drop shadows (installed)', "'NPP Primetime','Archivo Black',sans-serif", 400, 'normal', 'Your fonts', 'Archivo+Black'],
     designer:    ['Designer (installed)', "'NPP Designer','Russo One',sans-serif", 400, 'normal', 'Your fonts', 'Russo+One'],
-    gothic:      ['Gothic Open Shaded (Adobe)', "'gothic-open-shaded','Anton',sans-serif", 400, 'normal', 'Your fonts', null],
+    // Gothic Open Shaded has no numerals at all (letters + punctuation only), so digits fall through to Bungee Shade
+    gothic:      ['Gothic Open Shaded (Adobe; numbers in Bungee Shade)', "'gothic-open-shaded','Bungee Shade',sans-serif", 400, 'normal', 'Your fonts', 'Bungee+Shade'],
     roboto:      ['Roboto Bold (Adobe)', "'roboto',sans-serif", 700, 'normal', 'Your fonts', null],
     'roboto-r':  ['Roboto (Adobe)', "'roboto',sans-serif", 400, 'normal', 'Your fonts', null],
     'roboto-i':  ['Roboto Italic (Adobe)', "'roboto',sans-serif", 400, 'italic', 'Your fonts', null],
