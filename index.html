@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://use.typekit.net/lxl2pkq.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Narrow:wght@700&family=Bebas+Neue&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="pp.css?v=17">
+<link rel="stylesheet" href="pp.css?v=18">
 <style>
   :root { --navy:#0d1f2d; --navy2:#13293b; --navy3:#1b3850; --line:#24425c; --gold:#fbcc7a; --ink:#eef3f8; --dim:#9fb2c4; --red:#ff5a5f; --green:#3ddc84; }
   * { box-sizing:border-box; }
@@ -232,6 +232,7 @@
     <div class="row"><button class="sm" id="addP">+ Add</button><button class="sm" id="remP">− Remove</button></div>
     <div class="row">
       <label class="inl">Strikes <select id="strikes"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="5">5</option><option value="0">Unlimited</option></select></label>
+      <label class="inl">Look <select id="strikeStyle"><option value="x">X letters</option><option value="boxes">Boxes</option></select></label>
       <label class="inl">Order <select id="order"><option value="snake">Snake</option><option value="seq">In order</option></select></label>
     </div>
     <div class="row"><button class="gold" id="newGame" style="flex:1">New game (reset scores)</button></div>
@@ -336,8 +337,8 @@
   </div>
 </dialog>
 
-<script src="pp.js?v=17"></script>
-<script src="mlbdata.js?v=17"></script>
+<script src="pp.js?v=18"></script>
+<script src="mlbdata.js?v=18"></script>
 <script>
 (() => {
   const $ = id => document.getElementById(id);
@@ -370,10 +371,10 @@
   // ── state ───────────────────────────────────────────────────────────────
   const G = {
     list: null,                  // {title, sub, label, size, short, rows:[{rank,dr,name,val,id,hs,k,found,rv}], full:[...]|null, src}
-    players: LS.get('players', [{ name:'Dalton', color:PP.PLAYER_COLORS[0] }, { name:'Justin', color:PP.PLAYER_COLORS[1] }, { name:'Shelfy', color:PP.PLAYER_COLORS[2] }]).map(p => ({ name:p.name, color:p.color, score:0, strikes:0, out:false })),
+    players: LS.get('players', [{ name:'Knorp', color:PP.PLAYER_COLORS[0] }, { name:'Cohen', color:PP.PLAYER_COLORS[1] }, { name:'Jolly', color:PP.PLAYER_COLORS[2] }]).map(p => ({ name:p.name, color:p.color, score:0, strikes:0, out:false })),
     maxStrikes: LS.get('strikes', 3), order: LS.get('order', 'snake'), themeMode: LS.get('themeMode', 'rotate'),
     turn: 0, dir: 1, guesses: [], misses: [], card: null, cardN: 0,
-    revealMode: LS.get('revealMode', 'manual'), pending: null, showTeams: LS.get('showTeams', false),
+    revealMode: LS.get('revealMode', 'manual'), pending: null, strikeStyle: LS.get('strikeStyle', 'x'), showTeams: LS.get('showTeams', false),
     fonts: (() => { const f = Object.assign({}, LS.get('fonts', {})); if (f.name && !f.scoreName) { f.scoreName = f.name; delete f.name; } return Object.assign(PP.fontDefaults(), f); })(),
     sfx: Object.assign({ on: true, vol: 80, card: 'whoosh-01', reveal: 'whoosh-07' }, LS.get('sfx', {})),
     show: Object.assign({ card:true, score:true, strikes:true, turn:true, title:false, board:false }, LS.get('show', {})),
@@ -406,7 +407,7 @@
     return {
       app: 'mpp', pre: G.pre || [], show: G.show, card: G.card && G.card.hold ? null : G.card, turn: G.turn, maxStrikes: G.maxStrikes, layout: G.layout,
       players: G.players.map((p, i) => ({ name: p.name, color: p.color, score: p.score - (G.pending && G.pending.who === i ? G.pending.pts : 0), strikes: p.strikes, out: p.out })),
-      sfx: G.sfx, fonts: G.fonts, showTeams: !!G.showTeams,
+      sfx: G.sfx, fonts: G.fonts, strikeStyle: G.strikeStyle, showTeams: !!G.showTeams,
       title: L ? L.title : '', sub: L ? L.sub : '', cardLabel: L ? L.label : '', size: L ? L.size : '',
       board: G.show.board && L ? L.rows.map(r => ({ r: r.dr, n: r.found != null || r.rv ? r.name : '', v: r.found != null || r.rv ? r.val : '', c: r.found != null ? G.players[r.found]?.color : '', rv: !!r.rv && r.found == null })) : null,
     };
@@ -1026,6 +1027,7 @@
   ['sfxOn', 'sfxVol', 'sfxCard', 'sfxReveal'].forEach(id => $(id).addEventListener('change', saveSfx));
   document.querySelectorAll('[data-play]').forEach(b => b.onclick = () => { const a = new Audio('sfx/' + $(b.dataset.play).value + '.m4a'); a.volume = +$('sfxVol').value / 100; a.play().catch(() => {}); });
   $('bRank').onclick = revealRank;
+  $('strikeStyle').value = G.strikeStyle; $('strikeStyle').onchange = () => { G.strikeStyle = $('strikeStyle').value; LS.set('strikeStyle', G.strikeStyle); publish(); };
   $('showTeams').checked = !!G.showTeams; $('showTeams').onchange = () => { G.showTeams = $('showTeams').checked; LS.set('showTeams', G.showTeams); if (G.card) G.card = Object.assign({}, G.card, { id: G.card.id }); publish(); };
   $('sfxLocal').checked = !!G.sfx.local; $('sfxSync').value = G.sfx.sync || 0; $('sfxSyncV').textContent = (G.sfx.sync || 0) + ' ms';
   $('sfxLocal').onchange = () => { G.sfx.local = $('sfxLocal').checked; LS.set('sfx', G.sfx); };
@@ -1059,7 +1061,7 @@
     const ptNum = ['score', 'cardVal', 'rank', 'pop'].filter(k => G.fonts[k] === 'primetime');
     const w = $('fontWarn');
     if (miss.length) { w.style.color = 'var(--red)'; w.innerHTML = `<b>${miss.map(m => m[2]).join(' and ')} ${miss.length > 1 ? 'aren\'t' : 'isn\'t'} installed on this computer</b> — those spots fall back to Anton. Double-click the font file → Install, on this computer and the OBS computer, then reload.`; }
-    else if (ptNum.length) { w.style.color = 'var(--red)'; w.innerHTML = '<b>The free PRIMETIME has no numbers</b> — every digit is the Hypefonts "HF" logo. Pick another font for scores, stat numbers and the rank unless you have the full PRIMETIME.'; }
+    else if (ptNum.length) { w.style.color = 'var(--red)'; w.innerHTML = 'Scores are set to <b>PRIMETIME</b> like the show. That needs the full (paid) PRIMETIME — the free version draws every digit as the Hypefonts "HF" logo. If you see HF badges, pick another score font.'; w.style.color = 'var(--gold)'; }
     else { w.style.color = ''; w.innerHTML = 'PRIMETIME adds ten drop shadows wherever it\'s used. PRIMETIME and Designer load from fonts installed on this computer and the OBS computer — they aren\'t bundled.'; }
   }
   renderFontsEd();

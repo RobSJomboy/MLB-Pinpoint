@@ -188,7 +188,7 @@ window.PP = (() => {
     { panel:'#b784ef', ban:'#f6a12e' }, // purple / orange
     { panel:'#ff5a7a', ban:'#1fb8b0' }, // coral / teal
   ];
-  const PLAYER_COLORS = ['#f7a35c', '#f45fb5', '#f6e04a', '#5cc8ff', '#7be07b'];
+  const PLAYER_COLORS = ['#2F7DF2', '#36A456', '#F7941D', '#E8473F', '#9B5DE5'];
 
   // card x/y/size \u00b7 scoreboard x/y/size \u00b7 strike boxes centre-x/y/size \u00b7 board size
   const LAY_DEFAULT = { cx: 30, cy: 20, cs: 126, sx: 805, sy: 615, ss: 100, kx: 1350, ky: 819, ks: 100, bs: 100, bx: 0, by: 0, sn: 100, snm: 100 };
@@ -339,8 +339,9 @@ window.PP = (() => {
   };
   // [key, label, default, group]
   const FONT_SLOTS = [
-    ['scoreName', 'Contestant names', 'primetime', 'Scoreboard'],
-    ['score', 'Scores', 'designer', 'Scoreboard'],
+    ['scoreName', 'Contestant names', 'gothic', 'Scoreboard'],
+    ['score', 'Scores', 'primetime', 'Scoreboard'],
+    ['strikeX', 'Strike X', 'designer', 'Scoreboard'],
     ['pop', '+points pop & OUT stamp', 'anton', 'Scoreboard'],
     ['title', 'List title bar', 'anton', 'Scoreboard'],
     ['cardName', 'Player name', 'primetime', 'Card'],
@@ -465,7 +466,7 @@ window.PP = (() => {
     const frames = new Map();   // src -> {x,y,w,h}: cutout placement measured from the image's own pixels
     const failed = new Set();   // photos that would not load: draw the silhouette, never a broken-image icon
     const pending = new Map();  // src+mode -> promise, so a preload and a card share one fetch
-    const PH_W = 566, PH_H = 638; // photo window (the PSD's rounded panel)
+    const PH_W = 542, PH_H = 614; // photo window inside the panel's 12px frame
     // Load a photo before the card is drawn, so card and photo always arrive together (no img.decode(): it can hang).
     function preload(src, cutout) {
       const k = src + (cutout ? '#c' : '');
@@ -566,7 +567,7 @@ window.PP = (() => {
       el.card.style.setProperty('--pc', c.whoColor || '#ffd84a');
       el.card.innerHTML = `
         <div class="jc-namebox"><div class="jc-name" data-fit="50" data-min="22">${esc(c.name)}</div></div>
-        <div class="jc-photo">
+        <div class="jc-photo"><div class="jc-pwin">
           <svg class="jc-img" viewBox="0 0 ${PH_W} ${PH_H}" width="${PH_W}" height="${PH_H}">
             <defs>
               <filter id="jcGray"><feColorMatrix type="saturate" values="0"/></filter>
@@ -581,6 +582,7 @@ window.PP = (() => {
           </svg>
           ${tags ? `<div class="jc-teams${st.length > 6 ? ' many2' : st.length > 3 ? ' many' : ''}">${tags}</div>` : ''}
           ${miss ? `<svg class="jc-x" viewBox="0 0 100 100"><path d="M20 20 L80 80 M80 20 L20 80" stroke="#0a0a0a" stroke-width="20" stroke-linecap="round"/><path d="M20 20 L80 80 M80 20 L20 80" stroke="#e3262f" stroke-width="12" stroke-linecap="round"/></svg>` : ''}
+        </div>
           ${c.pinpoint ? `<div class="jc-pin rv"><span>Best possible answer</span>PINPOINT!</div>` : ''}
         </div>
         <div class="jc-statrow"><div class="jc-statbox"><b class="jc-val" data-fit="${miss && !hasVal ? 40 : 56}" data-min="24">${esc(statBig)}</b></div><div class="jc-lbl">${esc(statLbl)}</div></div>
@@ -631,13 +633,21 @@ window.PP = (() => {
       const LL = Object.assign({}, LAY_DEFAULT, S.layout || {}), scScale = (LL.sn || 100) / 100, nmScale = (LL.snm || 100) / 100;
       el.score.innerHTML = ps.map((p, i) => `
         <div class="pp-col${p.out ? ' out' : ''}${turnOn && S.turn === i && !p.out ? ' turn' : ''}" style="--pc:${esc(p.color)}">
-          <div class="pp-pname" data-fit="${Math.round((ps.length > 3 ? 54 : 66) * nmScale)}" data-min="16">${esc(p.name)}</div>
+          <div class="pp-pname" data-fit="${Math.round((ps.length > 3 ? 66 : 84) * nmScale)}" data-min="16">${esc(p.name)}</div>
           <div class="pp-pscore" data-fit="${Math.round((ps.length > 3 ? 92 : 108) * scScale)}" data-min="24">${p.score}</div>
           ${p.out ? '<div class="pp-out">OUT</div>' : ''}
           ${lastScores[i] != null && p.score > lastScores[i] ? `<div class="pp-plus">+${p.score - lastScores[i]}</div>` : ''}
         </div>`).join('');
       const max = S.maxStrikes || 0;
+      const xStyle = (S.strikeStyle || 'x') === 'x';
+      el.strikes.classList.toggle('xs', xStyle);
       el.strikes.innerHTML = ps.map((p, i) => {
+        if (xStyle) {
+          const n = max > 0 && max <= 5 ? Math.min(p.strikes, max) : p.strikes;
+          const xs = n > 5 ? `<span class="pp-sx" style="--pc:${esc(p.color)}">X</span><span class="pp-sxn">\u00d7${n}</span>`
+            : Array.from({ length: n }, (_, k) => `<span class="pp-sx${k === n - 1 && lastStrikes[i] != null && p.strikes > lastStrikes[i] ? ' new' : ''}" style="--pc:${esc(p.color)}">X</span>`).join('');
+          return `<div class="pp-scol${p.out ? ' out' : ''}">${xs}</div>`;
+        }
         let boxes;
         if (max > 0 && max <= 5) boxes = Array.from({ length: max }, (_, k) => `<div class="pp-box${k < p.strikes ? ' x' : ''}${k === p.strikes - 1 && lastStrikes[i] != null && p.strikes > lastStrikes[i] ? ' new' : ''}">${k < p.strikes ? XSVG : ''}</div>`).join('');
         else boxes = `<div class="pp-box x">${XSVG}</div><div class="pp-xcount">\u00d7 ${p.strikes}</div>`;
@@ -677,6 +687,7 @@ window.PP = (() => {
         const d = FONTS[F[k]] || FONTS.anton; ensureFont(F[k]);
         st.setProperty('--ff-' + k, d[1]); st.setProperty('--fw-' + k, d[2]); st.setProperty('--fs-' + k, d[3]);
         if (F[k] === 'primetime') el.stage.setAttribute('data-fx-' + k.toLowerCase(), ''); else el.stage.removeAttribute('data-fx-' + k.toLowerCase());
+        el.stage.setAttribute('data-f-' + k.toLowerCase(), F[k]);
         if (document.fonts && document.fonts.load) document.fonts.load(`${d[3]} ${d[2]} 40px ${d[1].split(',')[0]}`).then(refit, () => {});
       });
       refit();
